@@ -78,6 +78,7 @@ class NumGenApp(BaseApp):
         self.table = table
         self.dbs = {"": ""}
         self.dbName = ""
+        self.isGenerated = False  # True if the number is generated at least once else False
         self.generatorFrame = GeneratorFrame()
         self.generatorFrame.dbBox.addItem("")
         self.viewerFrame = ViewerFrame()
@@ -87,7 +88,8 @@ class NumGenApp(BaseApp):
 
     def frames(self) -> Tuple[GeneratorFrame, ViewerFrame]:
         """Overridden."""
-        return (self.generatorFrame, self.viewerFrame)
+        return (self.generatorFrame, self.viewerFrame) if self.isGenerated \
+               else (self.generatorFrame,)
 
     def updateDB(self, content: dict):
         """Updates the database list using the transferred message.
@@ -152,7 +154,9 @@ class NumGenApp(BaseApp):
         """Generates and shows a random number when the button is clicked."""
         # generate a random number
         num = generate()
+        self.isGenerated = True
         self.viewerFrame.numberLabel.setText(f"generated number: {num}")
+        self.swiftcall.updateFrames(name=self.name)
         self.broadcast("log", f"Generated number: {num}.")
         # save the generated number
         dbPath = self.dbs[self.dbName]
